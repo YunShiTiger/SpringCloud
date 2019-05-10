@@ -8,6 +8,8 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 public class OrderController {
 
+    // RestTemplate 是有SpringBoot Web组件提供 默认整合ribbon负载均衡器
+    // rest方式底层是采用httpclient技术
     @Autowired
     private RestTemplate restTemplate;
 

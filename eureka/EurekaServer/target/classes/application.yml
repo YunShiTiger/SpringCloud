@@ -1,7 +1,7 @@
 ###服务端口号
 server:
   #port: 8100 注册中心1的端口
-  port: 8200  #注册中心2的端口
+  port: 8100  #注册中心2的端口
 spring:
   application:
     name: eurekaServer
