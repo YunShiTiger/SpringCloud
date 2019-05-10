@@ -8,8 +8,8 @@ spring:
 eureka:
   client:
     service-url:
-      ##### 当前会员服务注册到eureka服务地址
-      defaultZone: http://localhost:8100/eureka
+      ##### 当前订单服务注册到eureka服务地址 此处使用了多个注册中心的配置操作处理
+      defaultZone: http://localhost:8100/eureka,http://localhost:8200/eureka
     ### 需要将我的服务注册到eureka上
     register-with-eureka: true
     ####需要检索服务

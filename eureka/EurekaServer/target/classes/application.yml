@@ -1,6 +1,7 @@
 ###服务端口号
 server:
-  port: 8100
+  #port: 8100 注册中心1的端口
+  port: 8200  #注册中心2的端口
 spring:
   application:
     name: eurekaServer
@@ -11,8 +12,9 @@ eureka:
     hostname: 127.0.0.1
   client:
     serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-    ###因为自己是为注册中心，不需要自己注册自己  如果是在集群环境下此值为true
-    register-with-eureka: false
-    ###因为自己是为注册中心，不需要检索服务
-    fetch-registry: false
+      #defaultZone: http://127.0.0.1:8200/eureka/   注册中心1需要连接的注册中心
+      defaultZone: http://127.0.0.1:8100/eureka/   #注册中心2需要连接的注册中心
+    ###多注册中心需要配置为true
+    register-with-eureka: true
+    ###多注册中心需要配置为true
+    fetch-registry: true
