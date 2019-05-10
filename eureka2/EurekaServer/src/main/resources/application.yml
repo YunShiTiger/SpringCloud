@@ -1,0 +1,24 @@
+###服务端口号
+server:
+  port: 8100
+spring:
+  application:
+    name: eurekaServer
+###eureka 基本信息配置
+eureka:
+  instance:
+    ###注册到eurekaip地址
+    hostname: 127.0.0.1
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8100/eureka/
+    register-with-eureka: false
+    fetch-registry: false
+  server:
+    # 测试时关闭自我保护机制，保证不可用服务及时踢出   注意默认是开启了自我保护机制  一般在测试环境进行关闭自我保护机制
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 2000
+
+
+
+
