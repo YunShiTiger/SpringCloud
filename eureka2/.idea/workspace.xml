@@ -3,6 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="f027a2c5-b06d-487a-b4e2-3f91b4364326" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mybatis-3.5.1/src/main/java/org/apache/ibatis/jdbc/ScriptRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/../mybatis-3.5.1/src/main/java/org/apache/ibatis/jdbc/ScriptRunner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mybatis-3.5.1/src/main/java/org/apache/ibatis/session/SqlSessionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../mybatis-3.5.1/src/main/java/org/apache/ibatis/session/SqlSessionManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/BaseDataTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/BaseDataTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/databases/blog/blog-derby.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/databases/blog/blog-derby.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/session/SqlSessionManagerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/session/SqlSessionManagerTest.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/EurekaServer/target/" />
@@ -76,9 +81,9 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
-    <option name="width" value="1400" />
+    <option name="x" value="585" />
+    <option name="y" value="74" />
+    <option name="width" value="1096" />
     <option name="height" value="1000" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">

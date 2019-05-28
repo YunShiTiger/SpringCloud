@@ -36,9 +36,13 @@ class SqlSessionManagerTest extends BaseDataTest {
 
   @BeforeAll
   static void setup() throws Exception {
+    //创建对应的数据源对象
     createBlogDataSource();
+    //设置需要加载的资源配置路径
     final String resource = "org/apache/ibatis/builder/MapperConfig.xml";
+    //根据资源路径获取对应的配置数据读取对象
     final Reader reader = Resources.getResourceAsReader(resource);
+    //根据对应的配置对象创建回话管理对象
     manager = SqlSessionManager.newInstance(reader);
   }
 

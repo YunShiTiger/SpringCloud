@@ -30,6 +30,9 @@ import org.apache.ibatis.executor.BatchResult;
 import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
+ * 边学习代码 边了解idea使用
+ *   代码向前和向后查看 https://blog.csdn.net/u010814849/article/details/76682701
+ *   ctrl+alt+左右方向键
  * @author Larry Meadors
  */
 public class SqlSessionManager implements SqlSessionFactory, SqlSession {
