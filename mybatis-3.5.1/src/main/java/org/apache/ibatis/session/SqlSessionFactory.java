@@ -18,6 +18,7 @@ package org.apache.ibatis.session;
 import java.sql.Connection;
 
 /**
+ * 边学代码 边研究idea 的快捷键 ctrl+H 查看类的继承关系
  * Creates an {@link SqlSession} out of a connection or a DataSource
  *
  * @author Clinton Begin

@@ -30,18 +30,29 @@ import org.apache.ibatis.executor.BatchResult;
 import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
+ * SqlSession的管理器处理类 此类是对外暴露的门面
  * 边学习代码 边了解idea使用
  *   代码向前和向后查看 https://blog.csdn.net/u010814849/article/details/76682701
  *   ctrl+alt+左右方向键
- * @author Larry Meadors
+ *
+ *  此处需要重点明确 SqlSessionManager  SqlSessionFactory SqlSessionFactoryBuilder  SqlSession 四者之间的关系
+ *     1  SqlSessionFactoryBuilder---->SqlSessionFactory(DefaultSqlSessionFactory)---->SqlSessionManager   此处是创建SqlSessionManager的链路
+ *     2  SqlSessionManager---->SqlSessionFactory--->SqlSession(DefaultSqlSession)  从这个地方可以看出为什么SqlSessionManager要实现SqlSessionFactory接口了
  */
 public class SqlSessionManager implements SqlSessionFactory, SqlSession {
 
+  //用于记录创建SqlSession的工厂对象SqlSessionFactory   即最终的SqlSession要从本工厂对象中获取
   private final SqlSessionFactory sqlSessionFactory;
+  //
   private final SqlSession sqlSessionProxy;
-
+  //
   private final ThreadLocal<SqlSession> localSqlSession = new ThreadLocal<>();
 
+  /**
+   * 根据提供的SqlSessionFactory来构建对应的SqlSessionManager对象------->创建SqlSessionManager对象的唯一构造方法
+   * 需要注意此处使用了private进行修饰构造方式: 目的是防止在外部直接进行创建此对象
+   * 感觉这个地方可以弄成对应的单例
+   */
   private SqlSessionManager(SqlSessionFactory sqlSessionFactory) {
     this.sqlSessionFactory = sqlSessionFactory;
     this.sqlSessionProxy = (SqlSession) Proxy.newProxyInstance(
@@ -50,6 +61,13 @@ public class SqlSessionManager implements SqlSessionFactory, SqlSession {
         new SqlSessionInterceptor());
   }
 
+  /**
+   * 通过方法重载的方式对外提供多种方式来构建SqlSessionManager对象
+   * 配置数据源可以分成三种形式  即外部可以通过提供一下三种方式的对象来构建SqlSessionManager管理对象
+   * 1 Reader流方式
+   * 2 InputStream流方式
+   * 3 SqlSessionFactory对象方式
+   */
   public static SqlSessionManager newInstance(Reader reader) {
     return new SqlSessionManager(new SqlSessionFactoryBuilder().build(reader, null, null));
   }
@@ -74,6 +92,11 @@ public class SqlSessionManager implements SqlSessionFactory, SqlSession {
     return new SqlSessionManager(new SqlSessionFactoryBuilder().build(inputStream, null, properties));
   }
 
+  /**
+   * 构建SqlSessionManager对象对象最终要走的方法
+   *   从此处可以明确一点
+   *   SqlSessionFactoryBuilder---->SqlSessionFactory---->SqlSessionManager
+   */
   public static SqlSessionManager newInstance(SqlSessionFactory sqlSessionFactory) {
     return new SqlSessionManager(sqlSessionFactory);
   }

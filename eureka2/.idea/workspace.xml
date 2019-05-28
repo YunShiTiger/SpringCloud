@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f027a2c5-b06d-487a-b4e2-3f91b4364326" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../mybatis-3.5.1/src/main/java/org/apache/ibatis/jdbc/ScriptRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/../mybatis-3.5.1/src/main/java/org/apache/ibatis/jdbc/ScriptRunner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mybatis-3.5.1/src/main/java/org/apache/ibatis/session/SqlSessionFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/../mybatis-3.5.1/src/main/java/org/apache/ibatis/session/SqlSessionFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../mybatis-3.5.1/src/main/java/org/apache/ibatis/session/SqlSessionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../mybatis-3.5.1/src/main/java/org/apache/ibatis/session/SqlSessionManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/BaseDataTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/BaseDataTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/databases/blog/blog-derby.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/databases/blog/blog-derby.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/session/SqlSessionManagerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../mybatis-3.5.1/src/test/java/org/apache/ibatis/session/SqlSessionManagerTest.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/EurekaServer/target/" />
@@ -208,7 +204,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18017058" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
