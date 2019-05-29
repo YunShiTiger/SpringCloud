@@ -222,9 +222,15 @@ public class Configuration {
     return logImpl;
   }
 
+  /**
+   * 提供设置通用日志实现类对象
+   */
   public void setLogImpl(Class<? extends Log> logImpl) {
+    //首先检测对应的通用日志实现类是否存在  即是否加载到
     if (logImpl != null) {
+      //将此通用日志处理对象设置给配置信息类对象
       this.logImpl = logImpl;
+      //设置使用用户配置的自定义通用日志处理实现类 进行日志管理操作
       LogFactory.useCustomLogging(this.logImpl);
     }
   }
@@ -233,9 +239,15 @@ public class Configuration {
     return this.vfsImpl;
   }
 
+  /**
+   * 设置对应的vfs实现类
+   */
   public void setVfsImpl(Class<? extends VFS> vfsImpl) {
+    //检测对应的类是否存在
     if (vfsImpl != null) {
+      //将对应的vfs实现类设置给配置信息类对象
       this.vfsImpl = vfsImpl;
+      //
       VFS.addImplClass(this.vfsImpl);
     }
   }

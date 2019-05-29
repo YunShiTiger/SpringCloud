@@ -41,12 +41,12 @@ public class Resources {
   private static Charset charset;
 
   Resources() {
+
   }
 
   /**
    * Returns the default classloader (may be null).
-   *
-   * @return The default classloader
+   * 获取配置的默认的类加载器对象
    */
   public static ClassLoader getDefaultClassLoader() {
     return classLoaderWrapper.defaultClassLoader;
@@ -54,8 +54,7 @@ public class Resources {
 
   /**
    * Sets the default classloader
-   *
-   * @param defaultClassLoader - the new default ClassLoader
+   * 设置默认的类加载器对象
    */
   public static void setDefaultClassLoader(ClassLoader defaultClassLoader) {
     classLoaderWrapper.defaultClassLoader = defaultClassLoader;
@@ -252,12 +251,10 @@ public class Resources {
 
   /**
    * Loads a class
-   *
-   * @param className - the class to fetch
-   * @return The loaded class
-   * @throws ClassNotFoundException If the class cannot be found (duh!)
+   * 根据提供的类的全限定名来加载对应的类对象
    */
   public static Class<?> classForName(String className) throws ClassNotFoundException {
+    //使用封装的类加载器进行加载对应的类对象
     return classLoaderWrapper.classForName(className);
   }
 

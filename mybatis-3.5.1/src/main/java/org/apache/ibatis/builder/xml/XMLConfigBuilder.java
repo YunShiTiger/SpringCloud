@@ -166,11 +166,13 @@ public class XMLConfigBuilder extends BaseBuilder {
       //解析配置文件中settings属性节点配置的属性信息
       Properties settings = settingsAsProperties(root.evalNode("settings"));
 
-      //根据获取的属性节点配置信息来初始化Vfs对象
+      //用于加载用户自己设定的vfs资源加载处理类
       loadCustomVfs(settings);
-      //
+      //此处是新增的一个功能点  设置通用的日志实现类
       loadCustomLogImpl(settings);
 
+      //加载对应的别名
+      //解析元素typeAliases，保存在typeAliasRegistry中      一般用来为Java全路径类型取一个比较短的名字
       typeAliasesElement(root.evalNode("typeAliases"));
       pluginElement(root.evalNode("plugins"));
       objectFactoryElement(root.evalNode("objectFactory"));
@@ -283,22 +285,54 @@ public class XMLConfigBuilder extends BaseBuilder {
     return props;
   }
 
+  /**
+   * 获取用户自定义的vfs的实现，配置在settings元素中。settings中放置自定义vfs实现类的全限定名，以逗号分隔
+   * VFS主要用来加载容器内的各种资源，比如jar或者class文件。mybatis提供了2个实现 JBoss6VFS 和 DefaultVFS，并提供了用户扩展点，
+   * 用于自定义VFS实现，加载顺序是自定义VFS实现 > 默认VFS实现 取第一个加载成功的，默认情况下会先加载JBoss6VFS，如果classpath下找不到jboss的vfs实现才会加载默认VFS实现，
+   * 启动打印的日志如下：
+   　　		org.apache.ibatis.io.VFS.getClass(VFS.java:111) Class not found: org.jboss.vfs.VFS
+   　　		org.apache.ibatis.io.JBoss6VFS.setInvalid(JBoss6VFS.java:142) JBoss 6 VFS API is not available in this environment.
+   　　		org.apache.ibatis.io.VFS.getClass(VFS.java:111) Class not found: org.jboss.vfs.VirtualFile
+   　　		org.apache.ibatis.io.VFS$VFSHolder.createVFS(VFS.java:63) VFS implementation org.apache.ibatis.io.JBoss6VFS is not valid in this environment.
+   　　		org.apache.ibatis.io.VFS$VFSHolder.createVFS(VFS.java:77) Using VFS adapter org.apache.ibatis.io.DefaultVFS
+
+   　　		jboss vfs的maven仓库坐标为：
+               <dependency>
+                <groupId>org.jboss</groupId>
+                <artifactId>jboss-vfs</artifactId>
+                <version>3.2.12.Final</version>
+              </dependency>
+   　　		找到jboss vfs实现后，输出的日志如下：
+   　　			org.apache.ibatis.io.VFS$VFSHolder.createVFS(VFS.java:77) Using VFS adapter org.apache.ibatis.io.JBoss6VFS
+   */
   private void loadCustomVfs(Properties props) throws ClassNotFoundException {
+    //获取用户配置的vfs实现类
     String value = props.getProperty("vfsImpl");
+    //检测是否配置了对应的vfs实现类
     if (value != null) {
+      //vfs实现类可以有多个，其实现类全限定名以逗号分隔
       String[] clazzes = value.split(",");
+      //循环遍历所有设定的vfs实现类
       for (String clazz : clazzes) {
+        //首先检测给定的类是否为null
         if (!clazz.isEmpty()) {
+          //反射加载自定义vfs实现类，并设置到Configuration实例中
           @SuppressWarnings("unchecked")
           Class<? extends VFS> vfsImpl = (Class<? extends VFS>)Resources.classForName(clazz);
+          //将加载到的vfs实现类设置给配置信息对象中
           configuration.setVfsImpl(vfsImpl);
         }
       }
     }
   }
 
+  /**
+   * 给配置信息类对象设置用户配置的通用日志处理实现类
+   */
   private void loadCustomLogImpl(Properties props) {
+    //解析并加载对应的通用日志实现类
     Class<? extends Log> logImpl = resolveClass(props.getProperty("logImpl"));
+    //将对应的通用日志实现类设置给配置信息对象
     configuration.setLogImpl(logImpl);
   }
 
