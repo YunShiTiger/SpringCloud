@@ -21,16 +21,21 @@ import java.lang.reflect.Method;
 import org.apache.ibatis.reflection.Reflector;
 
 /**
- * @author Clinton Begin
+ * 执行对应方法类型属性的处理类
+ *   即 通过本类封装对应的触发后期方法的行为
+ * get set is 等开头的属性方法
  */
 public class MethodInvoker implements Invoker {
 
+  //get或者is等对应的属性方法 此值为 对应的返回值类型
+  //set等对应的属性方法  此值为 对应的参数类型
   private final Class<?> type;
+  //记录对应的原始方法   后期用于通过反射来触发本方法
   private final Method method;
 
   public MethodInvoker(Method method) {
     this.method = method;
-
+    //此处通过参数的个数来进一步确实是那种对应的属性方法
     if (method.getParameterTypes().length == 1) {
       type = method.getParameterTypes()[0];
     } else {
@@ -41,12 +46,17 @@ public class MethodInvoker implements Invoker {
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException {
     try {
+      //触发对应对象对应的属性方法    即获取属性值或者设置属性值的处理
       return method.invoke(target, args);
     } catch (IllegalAccessException e) {
+      //反射遇到访问异常  进行检测是否可以进行改动方法的方法权限
       if (Reflector.canControlMemberAccessible()) {
+        //设置对应的属性方法是可以进行访问的
         method.setAccessible(true);
+        //重新触发对应的属性方法
         return method.invoke(target, args);
       } else {
+        //不能改变对应的访问权限 就抛出对应的异常
         throw e;
       }
     }
@@ -56,4 +66,5 @@ public class MethodInvoker implements Invoker {
   public Class<?> getType() {
     return type;
   }
+
 }

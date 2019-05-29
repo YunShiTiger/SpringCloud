@@ -27,11 +27,13 @@ import org.apache.ibatis.reflection.invoker.MethodInvoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
- * @author Clinton Begin
+ * MetaClass是一个保存对象定义比如getter/setter/构造器等的元数据类
  */
 public class MetaClass {
 
+  //对应的反射解析工厂对象
   private final ReflectorFactory reflectorFactory;
+  //对应的解析完成的解析类对象
   private final Reflector reflector;
 
   private MetaClass(Class<?> type, ReflectorFactory reflectorFactory) {

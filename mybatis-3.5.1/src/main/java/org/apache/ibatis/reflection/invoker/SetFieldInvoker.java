@@ -20,9 +20,11 @@ import java.lang.reflect.Field;
 import org.apache.ibatis.reflection.Reflector;
 
 /**
- * @author Clinton Begin
+ * 设置字段属性值的触发器处理类
  */
 public class SetFieldInvoker implements Invoker {
+
+  //记录对应的字段
   private final Field field;
 
   public SetFieldInvoker(Field field) {
@@ -32,12 +34,17 @@ public class SetFieldInvoker implements Invoker {
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException {
     try {
+      //给对应的字段设置值
       field.set(target, args[0]);
     } catch (IllegalAccessException e) {
+      //遇到访问权限问题 检测是否可以进行改动访问权限
       if (Reflector.canControlMemberAccessible()) {
+        //设置此字段可以进行访问
         field.setAccessible(true);
+        //重新给字段设置值
         field.set(target, args[0]);
       } else {
+        //不能改动访问权限 就抛出对应的异常
         throw e;
       }
     }

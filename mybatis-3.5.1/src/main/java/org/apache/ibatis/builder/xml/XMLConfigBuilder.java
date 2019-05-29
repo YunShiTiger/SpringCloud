@@ -67,7 +67,7 @@ public class XMLConfigBuilder extends BaseBuilder {
   private final XPathParser parser;
   //用于记录提供的数据库环境表示
   private String environment;
-  //
+  //设置默认的反射工厂处理类对象------>即具有缓存功能的反射处理类工厂对象
   private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
   /**
@@ -163,10 +163,14 @@ public class XMLConfigBuilder extends BaseBuilder {
       //加载properties节点,一般是定义一些配置变量
       //解析元素properties，保存在variables中      如配置dataSource的username password
       propertiesElement(root.evalNode("properties"));
+      //解析配置文件中settings属性节点配置的属性信息
       Properties settings = settingsAsProperties(root.evalNode("settings"));
 
+      //根据获取的属性节点配置信息来初始化Vfs对象
       loadCustomVfs(settings);
+      //
       loadCustomLogImpl(settings);
+
       typeAliasesElement(root.evalNode("typeAliases"));
       pluginElement(root.evalNode("plugins"));
       objectFactoryElement(root.evalNode("objectFactory"));
@@ -252,6 +256,9 @@ public class XMLConfigBuilder extends BaseBuilder {
       <setting name="jdbcTypeForNull" value="OTHER"/>
       <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
     </settings>
+
+    本方法的核心目的是验证配置的相关属性参数是否出现问题
+        此处需要学习一种思维方式  然后检测一个类上的属性和对应的配置文件中的属性是否相匹配的处理策略
    */
   private Properties settingsAsProperties(XNode context) {
     //首先检查对应的节点是否存在
@@ -262,6 +269,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     //获取配置在settings节点下的所有属性信息
     Properties props = context.getChildrenAsProperties();
     // Check that all settings are known to the configuration class
+    //获取对Configuration类的反射属性解析操作处理------->即获取Configuration类的相关属性信息
     MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory);
     //循环检测对应的属性参数在对应的配置对象中是否有对应的设置属性的方法
     for (Object key : props.keySet()) {
@@ -271,6 +279,7 @@ public class XMLConfigBuilder extends BaseBuilder {
         throw new BuilderException("The setting " + key + " is not known.  Make sure you spelled it correctly (case sensitive).");
       }
     }
+    //返回对应的属性对象
     return props;
   }
 

@@ -20,9 +20,11 @@ import java.lang.reflect.Field;
 import org.apache.ibatis.reflection.Reflector;
 
 /**
- * @author Clinton Begin
+ * 获取字段属性值的触发器处理类
  */
 public class GetFieldInvoker implements Invoker {
+
+  //记录对应的字段
   private final Field field;
 
   public GetFieldInvoker(Field field) {
@@ -32,12 +34,17 @@ public class GetFieldInvoker implements Invoker {
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException {
     try {
+      //获取字段对应的值
       return field.get(target);
     } catch (IllegalAccessException e) {
+      //遇到访问权限问题 检测是否可以进行改动访问权限
       if (Reflector.canControlMemberAccessible()) {
+        //设置此字段可以进行访问
         field.setAccessible(true);
+        //重新尝试获取对应字段的值
         return field.get(target);
       } else {
+        //不能改动访问权限 就抛出对应的异常
         throw e;
       }
     }
