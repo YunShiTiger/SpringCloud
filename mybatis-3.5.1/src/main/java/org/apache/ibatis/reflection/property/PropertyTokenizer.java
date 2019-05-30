@@ -18,27 +18,55 @@ package org.apache.ibatis.reflection.property;
 import java.util.Iterator;
 
 /**
- * @author Clinton Begin
+ * 属性标记器   主要完成对给定的复杂属性解析操作处理
+    例如传入：User[1].age
+        name=User
+        children=age
+        index=1
+        indexedName=User[1]
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
+
   private String name;
   private final String indexedName;
   private String index;
   private final String children;
 
   public PropertyTokenizer(String fullname) {
+    //首先获取给定的完整属性字符串是否存在复杂属性分割符 .
     int delim = fullname.indexOf('.');
+    //检测是否有复杂分隔符.的存在
     if (delim > -1) {
+      /*
+       * 以点位为界，进行分割。比如：
+       *    fullname = www.coolblog.xyz
+       *
+       * 以第一个点为分界符：
+       *    name = www
+       *    children = coolblog.xyz
+       */
       name = fullname.substring(0, delim);
       children = fullname.substring(delim + 1);
     } else {
+      // fullname 中不存在字符 '.'  相当于不是复杂的多属性
       name = fullname;
       children = null;
     }
     indexedName = name;
     delim = name.indexOf('[');
+    // 检测传入的参数中是否包含字符 '['
     if (delim > -1) {
+      /*
+       * 获取中括号里的内容，比如：
+       *   1. 对于数组或List集合：[] 中的内容为数组下标，
+       *      比如 fullname = articles[1]，index = 1
+       *   2. 对于Map：[] 中的内容为键，
+       *      比如 fullname = xxxMap[keyName]，index = keyName
+       *
+       * 关于 index 属性的用法，可以参考 BaseWrapper 的 getCollectionValue 方法
+       */
       index = name.substring(delim + 1, name.length() - 1);
+      // 获取分解符前面的内容，比如 fullname = articles[1]，name = articles
       name = name.substring(0, delim);
     }
   }
@@ -59,16 +87,26 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
     return children;
   }
 
+  /**
+   * 重写的是否有下一个元素的处理方法
+   */
   @Override
   public boolean hasNext() {
     return children != null;
   }
 
+  /**
+   * 重写的生成下一个元素的处理方法
+   */
   @Override
   public PropertyTokenizer next() {
+    // 对 children 进行再次切分，用于解析多重复合属性
     return new PropertyTokenizer(children);
   }
 
+  /**
+   * 此处重写了删除方法 即不能进行删除元素操作处理
+   */
   @Override
   public void remove() {
     throw new UnsupportedOperationException("Remove is not supported, as it has no meaning in the context of properties.");

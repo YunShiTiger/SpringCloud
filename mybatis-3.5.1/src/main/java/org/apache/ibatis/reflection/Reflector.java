@@ -63,6 +63,7 @@ public class Reflector {
   private final Map<String, Class<?>> getTypes = new HashMap<>();
 
   //用于存储不区分大小写的属性集合  存储了所有的属性值 来源是 get is set 方法属性 和 字段属性
+  //为什么存在这个集合  目的是能够在转驼峰  即正确识别对应的属性  不区分字符的大小写形式
   private Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
 
   public Reflector(Class<?> clazz) {
