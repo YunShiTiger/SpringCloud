@@ -16,7 +16,10 @@
 package org.apache.ibatis.logging;
 
 /**
- * @author Clinton Begin
+ * 进行日志处理的通用接口
+ *    本类是进行整合当前市面上多种通过的日志处理类的通用接口
+ *    具体的日志处理类封装在对应的实现中   从而使得mybatis可以根据需要随时整合其他类型的日志处理类
+ *    提供了对日志插件的扩展功能
  */
 public interface Log {
 

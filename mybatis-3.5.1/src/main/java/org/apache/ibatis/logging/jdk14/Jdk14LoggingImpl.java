@@ -21,10 +21,12 @@ import java.util.logging.Logger;
 import org.apache.ibatis.logging.Log;
 
 /**
- * @author Clinton Begin
+ * 使用jdk自带的日志处理实现类
+ *    即内部完全是封装了jdk自带的日志处理类对象
  */
 public class Jdk14LoggingImpl implements Log {
 
+  //jdk自带的日志输出处理类
   private final Logger log;
 
   public Jdk14LoggingImpl(String clazz) {

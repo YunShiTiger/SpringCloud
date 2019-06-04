@@ -174,13 +174,19 @@ public class XMLConfigBuilder extends BaseBuilder {
       //加载对应的别名
       //解析元素typeAliases，保存在typeAliasRegistry中      一般用来为Java全路径类型取一个比较短的名字
       typeAliasesElement(root.evalNode("typeAliases"));
+      //解析配置文件中plugins节点配置的插件信息
       pluginElement(root.evalNode("plugins"));
+      //解析配置文件中objectFactory节点配置的对象工厂信息
       objectFactoryElement(root.evalNode("objectFactory"));
+      //解析配置文件中objectWrapperFactory节点配置的包装对象工厂信息
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
+      //解析配置文件中reflectorFactory节点配置的反射工厂处理类
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
 
+      //通过解析settings节点获取的相关属性来配置对应的配置信息类对象------------------->这个地方为什么不在解析完成节点之后直接执行,而是在执行完一定的解析后再进行设置呢 ？？？？？？？？？？？？
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
+      //解析配置文件中environments节点配置的数据库执行环境信息
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
       typeHandlerElement(root.evalNode("typeHandlers"));
@@ -328,6 +334,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   /**
    * 给配置信息类对象设置用户配置的通用日志处理实现类
+   *  logImpl 可选的值有：SLF4J、LOG4J、LOG4J2、JDK_LOGGING、COMMONS_LOGGING、STDOUT_LOGGING、NO_LOGGING，或者是实现了接口 org.apache.ibatis.logging.Log 的，且构造方法是以字符串为参数的类的完全限定名。
    */
   private void loadCustomLogImpl(Properties props) {
     //解析并加载对应的通用日志实现类
@@ -336,20 +343,37 @@ public class XMLConfigBuilder extends BaseBuilder {
     configuration.setLogImpl(logImpl);
   }
 
+  /**
+   * 解析对应的typeAliases节点的别名信息
+   * 通过分析代码发现有两种设置别名的方式
+   *    1 通过配置package来进行扫描对应包名下的类来进行设置
+   *    2 通过配置alias和type属性进行设置
+   */
   private void typeAliasesElement(XNode parent) {
+    //检测对应的节点是否存在
     if (parent != null) {
+      //解析配置的别名子节点信息
       for (XNode child : parent.getChildren()) {
+        //检测是否是通过包名方式进行注册
         if ("package".equals(child.getName())) {
+          //获取对应的包名
           String typeAliasPackage = child.getStringAttribute("name");
+          //以包名的方式进行批量注册别名处理
           configuration.getTypeAliasRegistry().registerAliases(typeAliasPackage);
         } else {
+          //获取设定的别名
           String alias = child.getStringAttribute("alias");
+          //获取设置需要起别名的类
           String type = child.getStringAttribute("type");
           try {
+            //加载对应的类资源-------------->如果此处没有加载到对应的资源类就会抛出对应的异常信息
             Class<?> clazz = Resources.classForName(type);
+            //检测是否自己设定了对应的别名
             if (alias == null) {
+              //在没有显示配置别名的情况下，通过使用简单类名或者注解的方式进行别名注册
               typeAliasRegistry.registerAlias(clazz);
             } else {
+              //通过指定别名的方式进行注册处理
               typeAliasRegistry.registerAlias(alias, clazz);
             }
           } catch (ClassNotFoundException e) {
@@ -360,44 +384,80 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * 解析对应的plugins节点的插件信息
+   */
   private void pluginElement(XNode parent) throws Exception {
+    //检测对应的节点是否存在
     if (parent != null) {
+      //循环遍历所有的插件子节点
       for (XNode child : parent.getChildren()) {
+        //获取需要加载的插件处理类
         String interceptor = child.getStringAttribute("interceptor");
+        //获取配置字段属性信息
         Properties properties = child.getChildrenAsProperties();
+        //加载对应的插件处理类
         Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).newInstance();
+        //给对应的插件添加对应的配置属性
         interceptorInstance.setProperties(properties);
+        //将配置好的插件添加到插件链中
         configuration.addInterceptor(interceptorInstance);
       }
     }
   }
 
+  /**
+   * 解析对应的objectFactory节点的对象工厂
+   */
   private void objectFactoryElement(XNode context) throws Exception {
+    //检测对应的节点是否存在
     if (context != null) {
+      //获取配置的工厂对象的加载位置
       String type = context.getStringAttribute("type");
+      //获取配置给本工厂对象的属性信息
       Properties properties = context.getChildrenAsProperties();
+      //创建对应的对象工厂类对象
       ObjectFactory factory = (ObjectFactory) resolveClass(type).newInstance();
+      //给对象工厂设置对应的属性信息
       factory.setProperties(properties);
+      ///将配置的工厂对象设置到配置信息类对象中
       configuration.setObjectFactory(factory);
     }
   }
 
+  /**
+   * 解析对应的objectWrapperFactory节点的包装对象工厂
+   */
   private void objectWrapperFactoryElement(XNode context) throws Exception {
+    //检测对应的节点是否存在
     if (context != null) {
+      //获取设置的包装对象工厂的类位置
       String type = context.getStringAttribute("type");
+      //加载并创建对应的包装对象工厂
       ObjectWrapperFactory factory = (ObjectWrapperFactory) resolveClass(type).newInstance();
+      //将对应的包装对象工厂设置给配置信息对象
       configuration.setObjectWrapperFactory(factory);
     }
   }
 
+  /**
+   * 解析对应的reflectorFactory节点的获取设置的反射工厂处理类
+   */
   private void reflectorFactoryElement(XNode context) throws Exception {
+    //检测对应的节点是否存在
     if (context != null) {
+      //获取配置的反射工厂对应的位置
       String type = context.getStringAttribute("type");
+      //加载对应的类对象并创建对应的反射工厂处理类对象
       ReflectorFactory factory = (ReflectorFactory) resolveClass(type).newInstance();
+      //给配置信息对象设置对应的反射工厂处理类对象
       configuration.setReflectorFactory(factory);
     }
   }
 
+  /**
+   * 根据解析的settings节点获取的属性信息来设置配置信息类对象
+   */
   private void settingsElement(Properties props) {
     configuration.setAutoMappingBehavior(AutoMappingBehavior.valueOf(props.getProperty("autoMappingBehavior", "PARTIAL")));
     configuration.setAutoMappingUnknownColumnBehavior(AutoMappingUnknownColumnBehavior.valueOf(props.getProperty("autoMappingUnknownColumnBehavior", "NONE")));
@@ -427,20 +487,70 @@ public class XMLConfigBuilder extends BaseBuilder {
     configuration.setConfigurationFactory(resolveClass(props.getProperty("configurationFactory")));
   }
 
+  /**
+   * 解析配置文件中environments节点配置的数据库执行环境信息
+   * environments的作用是用来配置数据库信息，可以配置多个，其有两个可配的子元素，分别是：事务管理器transactionManager和数据源dataSource
+     数据库环境信息的配置实例
+      <environments default="development">
+        <!--环境变量 -->
+        <environment id="development">
+          <!--事务管理器 -->
+          <transactionManager type="MANAGED" />
+          <!--数据源 -->
+          <dataSource type="POOLED">
+            <property name="driver" value="${db.driver}" />
+            <property name="url" value="${db.url}" />
+            <property name="username" value="${db.username}" />
+            <property name="password" value="${db.pwd}" />
+          </dataSource>
+        </environment>
+        <!--环境变量 -->
+        <environment id="development">
+          <!--事务管理器 -->
+          <transactionManager type="JDBC" />
+           <!--数据源 -->
+          <dataSource type="POOLED">
+            <property name="driver" value="${db.driver}" />
+            <property name="url" value="${db.url}" />
+            <property name="username" value="${db.username}" />
+            <property name="password" value="${db.pwd}" />
+          </dataSource>
+        </environment>
+      </environments>
+   配置项说明
+   1 environments-default：该属性指定当前的环境，有development和work两种选择，默认是development开发模式；
+   2 environment-id：该属性是每个environment定义的环境，也有development和work两种选择，默认是development开发模式；
+   3 transactionManager-type：该属性是配置事务管理器的类型，mybatis中有JDBC和MANAGED两种，一次只能配置一个，后面会介绍；
+   4 dataSource－type：该属性用来配置数据源类型，有UNPOOLED、POOLED和JNDI三种选择，后面会介绍；
+   5 dataSource中的property元素就是数据库相关的信息
+     注意：environment可以配置多个，但是如果同一种模式，如development模式，配置了两个环境environment，mybatis会用后面的覆盖前面的
+
+   通过分析 其实这个地方也有问题  如果配置的数据库环境信息 与 配置的相关环境信息没有匹配的  那么是不是就没有对应的数据库环境可以使用了
+   是不是可以在给配置信息类对象设置数据库环境之后 最后进行一次检测是否配置好了数据库环境信息
+   */
   private void environmentsElement(XNode context) throws Exception {
+    //检测是否配置了对应的节点
     if (context != null) {
+      //检测是否通过全局配置了环境信息
       if (environment == null) {
+        //获取当前环境节点中对应的默认环境变量信息
         environment = context.getStringAttribute("default");
       }
+      //循环遍历环境节点中对应的子节点信息(即environments中可以有多个environment子节点   所有需要根据一定的策略来选择对应的执行环境)
+      //此处的目的是  可以配置多个环境对象(例如测试环境 生成环境  就需要两套对应的环境信息配置)
       for (XNode child : context.getChildren()) {
+        //获取对应的环境id属性-------->注意此处的id属性在environment节点中必须要进行配置
         String id = child.getStringAttribute("id");
+        //检测当前配置的环境信息是否是需要的执行环境信息
         if (isSpecifiedEnvironment(id)) {
+          //解析获取对应的事物工厂对象
           TransactionFactory txFactory = transactionManagerElement(child.evalNode("transactionManager"));
+          //解析获取对应的数据源工厂对象
           DataSourceFactory dsFactory = dataSourceElement(child.evalNode("dataSource"));
+          //通过数据源工厂创建对应的数据源对象
           DataSource dataSource = dsFactory.getDataSource();
-          Environment.Builder environmentBuilder = new Environment.Builder(id)
-              .transactionFactory(txFactory)
-              .dataSource(dataSource);
+          Environment.Builder environmentBuilder = new Environment.Builder(id).transactionFactory(txFactory).dataSource(dataSource);
+          //给配置信息对象设置对应的执行环境对象
           configuration.setEnvironment(environmentBuilder.build());
         }
       }
@@ -546,12 +656,23 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * 检测给定id值的环境信息是否是当前需要的执行环境信息
+   *   注意配置的environment来源有两条对应的来源
+   *     1 通过暴露在最外边的门面对象来传入数据库环境信息
+   *     2 通过xml配置文件中指定的默认环境信息
+   *    需要注意 外部门面传入的环境变量值要高于xml配置文件中配置的环境信息值
+   */
   private boolean isSpecifiedEnvironment(String id) {
+    //首先检测是否配置好对应的数据库环境信息
     if (environment == null) {
+      //抛出对应的异常 提示配置数据库环境信息
       throw new BuilderException("No environment specified.");
     } else if (id == null) {
+      //抛出对应的异常  即 所有的数据库环境都需要带对应的id标识
       throw new BuilderException("Environment requires an id attribute.");
     } else if (environment.equals(id)) {
+      //检测对应的id环境与数据库环境是否相匹配
       return true;
     }
     return false;

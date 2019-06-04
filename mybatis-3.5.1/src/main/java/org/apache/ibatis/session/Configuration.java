@@ -143,6 +143,7 @@ public class Configuration {
   protected Class<?> configurationFactory;
 
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+  //用于记录对应的myBatis中的插件链
   protected final InterceptorChain interceptorChain = new InterceptorChain();
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
@@ -171,11 +172,6 @@ public class Configuration {
    */
   protected final Map<String, String> cacheRefMap = new HashMap<>();
 
-  public Configuration(Environment environment) {
-    this();
-    this.environment = environment;
-  }
-
   public Configuration() {
     typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
     typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);
@@ -195,6 +191,9 @@ public class Configuration {
     typeAliasRegistry.registerAlias("XML", XMLLanguageDriver.class);
     typeAliasRegistry.registerAlias("RAW", RawLanguageDriver.class);
 
+    /**
+     * mybatis中内置的日志处理默认的实现类注册
+     */
     typeAliasRegistry.registerAlias("SLF4J", Slf4jImpl.class);
     typeAliasRegistry.registerAlias("COMMONS_LOGGING", JakartaCommonsLoggingImpl.class);
     typeAliasRegistry.registerAlias("LOG4J", Log4jImpl.class);
@@ -208,6 +207,11 @@ public class Configuration {
 
     languageRegistry.setDefaultDriverClass(XMLLanguageDriver.class);
     languageRegistry.register(RawLanguageDriver.class);
+  }
+
+  public Configuration(Environment environment) {
+    this();
+    this.environment = environment;
   }
 
   public String getLogPrefix() {
@@ -514,6 +518,9 @@ public class Configuration {
     return objectFactory;
   }
 
+  /**
+   * 设置对应的创建对象工厂处理类对象
+   */
   public void setObjectFactory(ObjectFactory objectFactory) {
     this.objectFactory = objectFactory;
   }
@@ -755,6 +762,9 @@ public class Configuration {
     return sqlFragments;
   }
 
+  /**
+   * 向myBatis中注册对应的插件
+   */
   public void addInterceptor(Interceptor interceptor) {
     interceptorChain.addInterceptor(interceptor);
   }

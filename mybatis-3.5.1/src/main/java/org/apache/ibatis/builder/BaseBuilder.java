@@ -29,11 +29,17 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
- * @author Clinton Begin
+ * 进行解析对应的提供的xml文件的基类对象
+ *    本类的内部主要完成初始化一些在解析xml文件时使用的公共类对象  例如 配置信息类对象 别名注册器对象
+ *    同时本类对注册器中提供的一些方法进行封装操作处理  提供根据统一的接口调用方法
  */
 public abstract class BaseBuilder {
+
+  //用于记录对应的配置信息类对象
   protected final Configuration configuration;
+  //用于记录对应的别名注册处理器对象
   protected final TypeAliasRegistry typeAliasRegistry;
+  //记录对应的类型处理器注册对象
   protected final TypeHandlerRegistry typeHandlerRegistry;
 
   public BaseBuilder(Configuration configuration) {
@@ -108,11 +114,16 @@ public abstract class BaseBuilder {
     }
   }
 
+  /**
+   * 根据提供的别名来解析对应的处理类对象
+   */
   protected <T> Class<? extends T> resolveClass(String alias) {
+    //检测给定的别名是否存在
     if (alias == null) {
       return null;
     }
     try {
+      //解析对应别名对应的处理类对象
       return resolveAlias(alias);
     } catch (Exception e) {
       throw new BuilderException("Error resolving class. Cause: " + e, e);
@@ -145,6 +156,9 @@ public abstract class BaseBuilder {
     return handler;
   }
 
+  /**
+   * 根据提供的别名获取对应的处理类对象
+   */
   protected <T> Class<? extends T> resolveAlias(String alias) {
     return typeAliasRegistry.resolveAlias(alias);
   }

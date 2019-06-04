@@ -22,7 +22,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author Clinton Begin
+ * 别名注解
+ *   主要用在别名转换操作处理的地方
+ *   即给对应的类起一个别名  后期可以通过简单的别名来找到对应的类对象
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

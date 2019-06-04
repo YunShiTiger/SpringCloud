@@ -18,7 +18,8 @@ package org.apache.ibatis.logging.nologging;
 import org.apache.ibatis.logging.Log;
 
 /**
- * @author Clinton Begin
+ * 不进行日志处理的实现类
+ *    即不完成对内容的日志管理操作处理
  */
 public class NoLoggingImpl implements Log {
 

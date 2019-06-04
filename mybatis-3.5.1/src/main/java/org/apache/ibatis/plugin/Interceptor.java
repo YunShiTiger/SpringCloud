@@ -18,14 +18,17 @@ package org.apache.ibatis.plugin;
 import java.util.Properties;
 
 /**
- * @author Clinton Begin
+ * myBatis中统一的插件接口
  */
 public interface Interceptor {
 
+  //
   Object intercept(Invocation invocation) throws Throwable;
 
+  //插件要执行的处理动作
   Object plugin(Object target);
 
+  //提供给对应的插件设置属性信息
   void setProperties(Properties properties);
 
 }

@@ -18,7 +18,8 @@ package org.apache.ibatis.logging.stdout;
 import org.apache.ibatis.logging.Log;
 
 /**
- * @author Clinton Begin
+ * 使用标准输出的日志处理实现类
+ *   即内部完全是封装了标准输出类进行日志输出
  */
 public class StdOutImpl implements Log {
 
