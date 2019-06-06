@@ -102,12 +102,18 @@ public abstract class BaseBuilder {
     }
   }
 
+  /**
+   * 根据提供的别名来解析对应的处理类对象,并根据获取的类来创建对应的对象
+   */
   protected Object createInstance(String alias) {
+    //根据提供的别名获取对应的类对象
     Class<?> clazz = resolveClass(alias);
+    //检测对应的类对象是否存在
     if (clazz == null) {
       return null;
     }
     try {
+      //解析对应别名对应的类，并创建对应的对象
       return resolveClass(alias).newInstance();
     } catch (Exception e) {
       throw new BuilderException("Error creating instance. Cause: " + e, e);

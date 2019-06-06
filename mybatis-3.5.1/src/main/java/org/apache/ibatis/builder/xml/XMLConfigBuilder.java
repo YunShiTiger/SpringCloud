@@ -188,7 +188,9 @@ public class XMLConfigBuilder extends BaseBuilder {
       // read it after objectFactory and objectWrapperFactory issue #631
       //解析配置文件中environments节点配置的数据库执行环境信息
       environmentsElement(root.evalNode("environments"));
+      //解析配置文件中databaseIdProvider节点配置的当前数据库对应的运行环境标识
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+
       typeHandlerElement(root.evalNode("typeHandlers"));
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
@@ -549,6 +551,7 @@ public class XMLConfigBuilder extends BaseBuilder {
           DataSourceFactory dsFactory = dataSourceElement(child.evalNode("dataSource"));
           //通过数据源工厂创建对应的数据源对象
           DataSource dataSource = dsFactory.getDataSource();
+          //通过环境id 事物工厂 数据源构建对应的环境装配类对象
           Environment.Builder environmentBuilder = new Environment.Builder(id).transactionFactory(txFactory).dataSource(dataSource);
           //给配置信息对象设置对应的执行环境对象
           configuration.setEnvironment(environmentBuilder.build());
@@ -557,6 +560,78 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * 检测给定id值的环境信息是否是当前需要的执行环境信息
+   *   注意配置的environment来源有两条对应的来源
+   *     1 通过暴露在最外边的门面对象来传入数据库环境信息
+   *     2 通过xml配置文件中指定的默认环境信息
+   *    需要注意 外部门面传入的环境变量值要高于xml配置文件中配置的环境信息值
+   */
+  private boolean isSpecifiedEnvironment(String id) {
+    //首先检测是否配置好对应的数据库环境信息
+    if (environment == null) {
+      //抛出对应的异常 提示配置数据库环境信息
+      throw new BuilderException("No environment specified.");
+    } else if (id == null) {
+      //抛出对应的异常  即 所有的数据库环境都需要带对应的id标识
+      throw new BuilderException("Environment requires an id attribute.");
+    } else if (environment.equals(id)) {
+      //检测对应的id环境与数据库环境是否相匹配
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * 解析配置文件中environment节点下配置的transactionManager节点中事物管理器对象的信息
+   */
+  private TransactionFactory transactionManagerElement(XNode context) throws Exception {
+    //检测对应的节点是否存在
+    if (context != null) {
+      //获取进行事物管理的类型
+      String type = context.getStringAttribute("type");
+      //获取配置的属性信息
+      Properties props = context.getChildrenAsProperties();
+      //根据提供的类型创建对应的事物管理器工厂对象
+      TransactionFactory factory = (TransactionFactory) resolveClass(type).newInstance();
+      //给事物管理器对象设置对应的属性
+      factory.setProperties(props);
+      //返回对应的事物管理器工厂对象
+      return factory;
+    }
+    //对应的节点不存在就抛出异常------------->所以执行环境中必须要配置对应的transactionManager节点
+    throw new BuilderException("Environment declaration requires a TransactionFactory.");
+  }
+
+  /**
+   * 解析配置文件中environment节点下配置的dataSource节点中数据源工厂的信息
+   */
+  private DataSourceFactory dataSourceElement(XNode context) throws Exception {
+    //检测对应的节点是否存在
+    if (context != null) {
+      //获取配置的数据源工厂类型
+      String type = context.getStringAttribute("type");
+      //获取对应的配置属性信息
+      Properties props = context.getChildrenAsProperties();
+      //创建对应类型的数据源工厂对象
+      DataSourceFactory factory = (DataSourceFactory) resolveClass(type).newInstance();
+      //给数据源工厂对象配置对应的属性信息
+      factory.setProperties(props);
+      //返回对应的数据源工厂对象
+      return factory;
+    }
+    //对应的节点不存在就抛出异常------------->所以执行环境中必须要配置对应的dataSource节点
+    throw new BuilderException("Environment declaration requires a DataSourceFactory.");
+  }
+
+  /**
+   * https://www.jianshu.com/p/37c55a90bd28
+   * http://www.pianshen.com/article/228224019/
+   * https://www.cnblogs.com/happyflyingpig/p/7689289.html
+   * https://www.cnblogs.com/hellowhy/p/9676037.html
+   * @param context
+   * @throws Exception
+   */
   private void databaseIdProviderElement(XNode context) throws Exception {
     DatabaseIdProvider databaseIdProvider = null;
     if (context != null) {
@@ -574,28 +649,6 @@ public class XMLConfigBuilder extends BaseBuilder {
       String databaseId = databaseIdProvider.getDatabaseId(environment.getDataSource());
       configuration.setDatabaseId(databaseId);
     }
-  }
-
-  private TransactionFactory transactionManagerElement(XNode context) throws Exception {
-    if (context != null) {
-      String type = context.getStringAttribute("type");
-      Properties props = context.getChildrenAsProperties();
-      TransactionFactory factory = (TransactionFactory) resolveClass(type).newInstance();
-      factory.setProperties(props);
-      return factory;
-    }
-    throw new BuilderException("Environment declaration requires a TransactionFactory.");
-  }
-
-  private DataSourceFactory dataSourceElement(XNode context) throws Exception {
-    if (context != null) {
-      String type = context.getStringAttribute("type");
-      Properties props = context.getChildrenAsProperties();
-      DataSourceFactory factory = (DataSourceFactory) resolveClass(type).newInstance();
-      factory.setProperties(props);
-      return factory;
-    }
-    throw new BuilderException("Environment declaration requires a DataSourceFactory.");
   }
 
   private void typeHandlerElement(XNode parent) {
@@ -654,28 +707,6 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
       }
     }
-  }
-
-  /**
-   * 检测给定id值的环境信息是否是当前需要的执行环境信息
-   *   注意配置的environment来源有两条对应的来源
-   *     1 通过暴露在最外边的门面对象来传入数据库环境信息
-   *     2 通过xml配置文件中指定的默认环境信息
-   *    需要注意 外部门面传入的环境变量值要高于xml配置文件中配置的环境信息值
-   */
-  private boolean isSpecifiedEnvironment(String id) {
-    //首先检测是否配置好对应的数据库环境信息
-    if (environment == null) {
-      //抛出对应的异常 提示配置数据库环境信息
-      throw new BuilderException("No environment specified.");
-    } else if (id == null) {
-      //抛出对应的异常  即 所有的数据库环境都需要带对应的id标识
-      throw new BuilderException("Environment requires an id attribute.");
-    } else if (environment.equals(id)) {
-      //检测对应的id环境与数据库环境是否相匹配
-      return true;
-    }
-    return false;
   }
 
 }
